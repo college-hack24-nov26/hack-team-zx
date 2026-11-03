@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SmartDrive in-car screen</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&display=swap" rel="stylesheet">
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:dark;
+--bg:#070b12;--panel:#101826;--ink:#f1f5fa;--mute:#8fa1b8;--line:#223047;--ok:#35d07f;--bad:#ff5c5c;--warn:#ffb020;--acc:#4aa3ff}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;display:grid;place-items:center}
+.stage{container-type:inline-size;position:relative;width:min(100%,177.78dvh);aspect-ratio:16/9;background:var(--bg);overflow:hidden}
+.app{position:absolute;inset:0;font-size:2cqw;line-height:1.25}
+.scr{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:3%;gap:.7em}
+.scr.on{display:flex;animation:in .5s ease}
+@keyframes in{from{opacity:0;transform:scale(.97)}to{opacity:1;transform:none}}
+h1,h2{margin:0;font-family:"Bricolage Grotesque",system-ui,sans-serif;letter-spacing:-.02em}
+h1{font-size:2.8em}h2{font-size:2em}
+.mute{color:var(--mute);font-size:.8em}
+button{font:inherit;cursor:pointer;color:var(--ink)}
+button:focus-visible{outline:.15em solid var(--warn);outline-offset:.15em}
+.btn{padding:.7em 1.6em;border-radius:.7em;border:.1em solid var(--acc);background:var(--acc);color:#04101f;font-weight:700;font-size:1em}
+.btn.g{background:transparent;color:var(--ink);border-color:var(--line)}
+.btn:disabled{opacity:.35;cursor:default}
+.brand{position:absolute;left:3%;top:3%;font:800 1em "Bricolage Grotesque",system-ui;color:var(--mute)}
+.push{width:12em;height:12em;border-radius:50%;border:.25em solid var(--acc);background:radial-gradient(circle at 50% 30%,#1d2f4b,#0b1422);font:700 1.5em/1.2 "Bricolage Grotesque",system-ui;animation:ring 2s infinite}
+@keyframes ring{0%{box-shadow:0 0 0 0 rgba(74,163,255,.55)}100%{box-shadow:0 0 0 2.6em rgba(74,163,255,0)}}
+.zx{display:flex;font:800 7em/1 "Bricolage Grotesque",system-ui;animation:glow 1.2s 1.3s ease-in-out infinite alternate}
+.zx span{display:inline-block;opacity:0;animation:slam .6s var(--d) cubic-bezier(.2,1.6,.4,1) forwards}
+@keyframes slam{from{transform:translateY(-1.5em) scale(2.4) rotate(-14deg);opacity:0}to{transform:none;opacity:1}}
+@keyframes glow{to{text-shadow:0 0 .35em var(--acc),0 0 .8em rgba(74,163,255,.5)}}
+.arms{display:flex;align-items:center;gap:1.2em}
+.arm{display:inline-block;font-size:3.6em;animation:flex .55s ease-in-out infinite alternate}
+.arm.r{transform:scaleX(-1)}
+@keyframes flex{from{transform:scale(1) rotate(-6deg)}to{transform:scale(1.3) rotate(6deg)}}
+.sub{opacity:0;animation:in .6s 2.2s forwards;font-size:1.3em;color:var(--mute)}
+.breath{width:7em;height:7em;border-radius:50%;border:.2em solid var(--acc);position:relative;animation:pulse 1.6s ease-in-out infinite}
+.breath:before,.breath:after{content:"";position:absolute;inset:-.9em;border-radius:50%;border:.1em solid var(--acc);opacity:.4}
+.breath:after{inset:-1.8em;opacity:.2}
+@keyframes pulse{50%{transform:scale(1.12)}}
+.pb{width:24em;height:.5em;background:var(--line);border-radius:1em;overflow:hidden}.pb i{display:block;height:100%;width:0;background:var(--acc)}
+.seg{display:flex;border:.1em solid var(--line);border-radius:.6em;overflow:hidden;margin-top:.5em}
+.seg button{background:transparent;border:0;padding:.4em 1em;font-size:.75em;color:var(--mute)}
+.seg button.on{background:var(--line);color:var(--ink)}
+.ev{display:flex;gap:1em}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:.7em;padding:.6em .9em;width:15em;text-align:left;font-size:.8em}
+.card b{display:block}.card .big{font:800 1.8em "Bricolage Grotesque",system-ui;color:var(--bad)}
+.rts{display:flex;gap:1em}
+.rt{background:var(--panel);border:.1em solid var(--line);border-radius:.8em;padding:.8em 1em;width:13em;text-align:left;font-size:.85em}
+.rt.on{border-color:var(--acc);box-shadow:0 0 0 .1em var(--acc)}
+.rt b{display:block;font-size:1.15em;margin-bottom:.2em}.rt span{color:var(--mute)}
+.drv{display:grid;grid-template-columns:1.4fr 1fr;gap:2em;align-items:center;width:100%;padding:0 4%}
+.spd{font:800 10em/1 "Bricolage Grotesque",system-ui;font-variant-numeric:tabular-nums;letter-spacing:-.04em}
+.sign{width:6.5em;height:6.5em;border-radius:50%;background:#fff;border:.45em solid #d62828;color:#111;font:800 2.8em/5.1 "Bricolage Grotesque",system-ui;text-align:center;margin:0 auto}
+.chip{display:inline-block;padding:.3em 1em;border-radius:2em;font-weight:700;background:var(--ok);color:#04101f}
+.bar{width:100%;height:.5em;background:var(--line);border-radius:1em;overflow:hidden;margin-top:.6em}.bar i{display:block;height:100%;width:0;background:var(--acc)}
+.note{position:absolute;bottom:2.2%;left:0;right:0;text-align:center;color:var(--mute);font-size:.65em}
+.ok{color:var(--ok)}.bad{color:var(--bad)}
+@media(prefers-reduced-motion:reduce){*{animation-duration:.01s!important;animation-iteration-count:1!important}}
+</style></head><body>
+<div class="stage"><div class="app">
+
+<section class="scr on" id="s0"><div class="brand">SmartDrive</div>
+<button class="push" id="go">Push to start</button>
+<p class="mute">Alcohol check runs before the engine can start</p>
+<p class="note">Prototype display for the physical car on our desk</p></section>
+
+<section class="scr" id="s1">
+<div class="arms"><span class="arm">💪</span><div class="zx"><span style="--d:.1s">T</span><span style="--d:.2s">E</span><span style="--d:.3s">A</span><span style="--d:.4s">M</span><span style="--d:.5s">&nbsp;</span><span style="--d:.7s">Z</span><span style="--d:.85s">X</span></div><span class="arm r">💪</span></div>
+<p class="sub">presents SmartDrive</p></section>
+
+<section class="scr" id="s2"><h1>Alcohol detection</h1>
+<div class="breath" style="margin:1.4em 0"></div>
+<p style="font-size:1.2em;margin:0">Checking that the driver is fresh and sober. Please blow into the sensor.</p>
+<div class="pb"><i id="pg"></i></div>
+<div class="seg" role="group" aria-label="Sensor input"><button class="on" data-d="sober">No alcohol</button><button data-d="drunk">Alcohol</button></div></section>
+
+<section class="scr" id="s3"></section>
+
+<section class="scr" id="s4"><h2>Select your route</h2>
+<div class="rts" id="rts"></div>
+<button class="btn" id="st" disabled>Start driving</button></section>
+
+<section class="scr" id="s5">
+<div class="brand" id="rn"></div>
+<div class="drv"><div><div class="spd" id="sp">0</div><div class="mute" style="font-size:1.1em">km/h</div></div>
+<div><div class="sign" id="lm">40</div><p style="margin:.6em 0 0"><span class="chip" id="chip">Driving</span></p><p class="mute" id="gap" style="font-size:1em;margin:.4em 0 0">Road clear</p></div></div>
+<div style="width:86%"><div class="bar"><i id="rp"></i></div></div>
+<div style="display:flex;gap:.8em"><button class="btn g" id="ob">Add obstacle</button><button class="btn g" id="end">End trip</button></div></section>
+
+</div></div>
+<script>
+const $=s=>document.querySelector(s),A=s=>[...document.querySelectorAll(s)];
+const R=[{n:'Highway route',d:'42 km · 48 min',l:[60,80,60,80]},{n:'City route',d:'18 km · 41 min',l:[30,50,40,50]},{n:'Safest route',d:'27 km · 39 min',l:[40,60,50,60]}];
+let demo='sober',route=null,tm=[],iv;
+function say(t){try{speechSynthesis.cancel();speechSynthesis.speak(new SpeechSynthesisUtterance(t))}catch(e){}}
+function go(id){tm.forEach(clearTimeout);clearInterval(iv);A('.scr').forEach(e=>e.classList.toggle('on',e.id===id));
+ if(id==='s1')tm.push(setTimeout(()=>go('s2'),4400));if(id==='s2')detect();if(id==='s4')routes();if(id==='s5')drive()}
+$('#go').onclick=()=>go('s1');
+A('.seg button').forEach(b=>b.onclick=()=>{demo=b.dataset.d;A('.seg button').forEach(x=>x.classList.toggle('on',x===b))});
+function detect(){let p=0;$('#pg').style.width='0';iv=setInterval(()=>{p+=2.5;$('#pg').style.width=p+'%';if(p>=100){clearInterval(iv);result()}},100)}
+function result(){
+ const r=demo==='drunk'?640+Math.round(Math.random()*90):100+Math.round(Math.random()*50),bad=r>=400,t=new Date().toLocaleTimeString();
+ $('#s3').innerHTML=bad?
+ `<h1 class="bad">Alcohol detected: YES</h1><h2>Engine cannot start</h2>
+ <div class="ev"><div class="card"><b>Photo 1: driver</b><svg viewBox="0 0 100 60" width="100%" style="background:#0b1422;border-radius:.4em"><circle cx="50" cy="24" r="12" fill="#8fa1b8"/><path d="M22 60c2-16 14-22 28-22s26 6 28 22z" fill="#8fa1b8"/></svg><span class="mute">Captured ${t}</span></div>
+ <div class="card"><b>Photo 2: alcohol reading</b><span class="big">${r}</span><span class="mute">Limit 400 · ${t}</span></div></div>
+ <p style="margin:0">Driving time logged at <b>${t}</b>. Emergency contact alerted.</p><button class="btn g" id="rt">Test again</button>`:
+ `<h1 class="ok">Alcohol detected: NO</h1><h2>Driver is fresh. Engine can start.</h2><p class="mute" style="margin:0">Reading ${r} · limit 400 · ${t}</p><button class="btn" id="rt">Choose route</button>`;
+ say(bad?'Alcohol detected. The engine cannot start.':'No alcohol detected. You can start the engine.');
+ go('s3');$('#rt').onclick=()=>go(bad?'s2':'s4')}
+function routes(){route=null;$('#st').disabled=true;$('#rts').innerHTML=R.map((r,i)=>`<button class="rt" data-i="${i}"><b>${r.n}</b>${r.d}<br><span>Limits ${Math.min(...r.l)} to ${Math.max(...r.l)} km/h</span></button>`).join('');
+ A('.rt').forEach(b=>b.onclick=()=>{route=+b.dataset.i;A('.rt').forEach(x=>x.classList.toggle('on',x===b));$('#st').disabled=false})}
+$('#st').onclick=()=>go('s5');
+let v,t,ob;
+function drive(){v=0;t=0;ob=-1;const r=R[route];$('#rn').textContent=r.n;
+ iv=setInterval(()=>{t+=.1;const p=Math.min(100,t/40*100),lim=r.l[Math.min(3,Math.floor(p/25))];let tgt=lim,st='Driving',c='var(--ok)',g='Road clear';
+  if(ob>=0){ob+=.1;if(ob<1.5){tgt=lim*.5;st='Collision warning';c='var(--warn)';g=Math.round(45-ob*12)+' m ahead'}else if(ob<4){tgt=0;st='Emergency brake';c='var(--bad)';g='Obstacle stopped'}else ob=-1;
+   if(ob>=0&&st!==$('#chip').textContent)say(st)}
+  v+=(tgt-v)*(st==='Emergency brake'?.25:.06);
+  if(p>=100){clearInterval(iv);st='Arrived';c='var(--acc)';v=0;g='Trip complete'}
+  $('#sp').textContent=Math.round(v);$('#lm').textContent=lim;$('#rp').style.width=p+'%';
+  const ch=$('#chip');ch.textContent=st;ch.style.background=c;$('#gap').textContent=g},100)}
+$('#ob').onclick=()=>{ob=0};$('#end').onclick=()=>go('s0');
+</script></body></html>
